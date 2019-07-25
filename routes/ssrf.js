@@ -16,26 +16,21 @@ module.exports = ({ router }) => {
   const libs = ['axios', 'bent', 'fetch', 'request', 'superagent'];
 
   libs.forEach((lib) => {
-    router.get(`/ssrf/${lib}/query/unsafe`, async (ctx, next) => {
-      const url = createUnsafeUrl(ctx.query.input);
+    router.get(`/ssrf/${lib}/query`, async (ctx, next) => {
+      const url = `${EXAMPLE_URL}?q=${ctx.request.query.input}`;
       const data = await makeRequest(lib, url);
 
       ctx.body = data;
     });
 
-    router.post(`/ssrf/${lib}/body/unsafe`, async (ctx, next) => {
-      const url = createUnsafeUrl(ctx.request.body.input);
+    router.get(`/ssrf/${lib}/path`, async (ctx, next) => {
+      const url = `http://${ctx.request.query.input}`;
       const data = await makeRequest(lib, url);
 
       ctx.body = data;
     });
   });
 };
-
-const createUnsafeUrl = (input) => `${EXAMPLE_URL}?q=${input}`;
-
-const createSafeUrl = (input) =>
-  `${EXAMPLE_URL}?q=${encodeURIComponent(input)}`;
 
 const makeRequest = async function makeRequest(lib, url) {
   switch (lib) {
